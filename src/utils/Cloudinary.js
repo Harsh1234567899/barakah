@@ -2,7 +2,6 @@ const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const ApiError = require("../utils/ApiError");
 const { extractPublicId } = require("cloudinary-build-url");
-const { log } = require("console");
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,26 +10,23 @@ cloudinary.config({
 })
 
 const uploadOnCloudinary = async (localFilePath , folder = "") => {
+    if (!localFilePath) return null;
+
     try {
-        if (!localFilePath) return null 
-
-        const response = await cloudinary.uploader.upload(localFilePath, {
+        return await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto",
-            folder: folder 
-        })
-        // console.log("cloudinary response",response);
-
-
-        fs.unlinkSync(localFilePath);
-        return response
-        
+            folder,
+        });
     } catch (error) {
-        fs.unlinkSync(localFilePath) 
+        throw new ApiError(502, 'Cloudinary upload failed');
+    } finally {
+        try {
             if (fs.existsSync(localFilePath)) {
                 fs.unlinkSync(localFilePath);
+            }
+        } catch (error) {
+            console.warn('Could not remove temporary upload file.');
         }
-        return null
-
     }
 }
 
@@ -54,7 +50,8 @@ const deleteOnCloudinary = async (imageURL) => {
         return 1;
 
     } catch (error) {
-        throw new ApiError(400,"cloudinary delete catch block");
+        if (error instanceof ApiError) throw error;
+        throw new ApiError(502, 'Cloudinary image deletion failed');
     }
 }
 

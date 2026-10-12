@@ -6,13 +6,13 @@ const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(err => err.msg);
-    return next(new ApiError(400, errorMessages));
+    return next(new ApiError(400,`error while validate body : ${errorMessages}`));
   }
   next();
 };
 
 const validateRegister = [
-  body('name')
+  body('userName')
     .trim()
     .notEmpty().withMessage('Name is required')
     .isLength({ min: 2 }).withMessage('Name must be at least 2 characters')

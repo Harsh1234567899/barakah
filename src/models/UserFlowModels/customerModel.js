@@ -36,15 +36,17 @@ const customerSchema = new mongoose.Schema({
         default: null
     },
     phoneNumber: {
-        type: Number,
-        minlength: [10, 'Phone number must be at least 10 digits'],
+        type: String,
         trim: true,
+        minlength: [7, 'Phone number must be at least 7 characters'],
+        maxlength: [20, 'Phone number cannot exceed 20 characters'],
         default: null
     },
     alternateNumber: {
-        type: Number,
-        minlength: [10, 'Alternate number must be at least 10 digits'],
+        type: String,
         trim: true,
+        minlength: [7, 'Alternate number must be at least 7 characters'],
+        maxlength: [20, 'Alternate number cannot exceed 20 characters'],
         default: null
     },
     orders: [{

@@ -7,9 +7,9 @@ const vendorSchema = new mongoose.Schema({
         required: true
     },
     vendorCode: {
-      type: String,
-      required: [true, 'Vendor Code is required'],
-      unique: true
+        type: String,
+        required: [true, 'Vendor Code is required'],
+        unique: true
     },
     avatar: {
         type: String,
@@ -17,11 +17,13 @@ const vendorSchema = new mongoose.Schema({
     },
     GSTNumber: {
         type: String,
-        required: [true, 'GST Number is required'],
+        default : null,
+        unique : true
     },
     PANNumber: {
         type: String,
-        required: [true, 'PAN Number is required'],
+        default : null,
+        unique : true
     },
     BrandName: {
         type: String,
@@ -47,32 +49,34 @@ const vendorSchema = new mongoose.Schema({
         ref: 'PinCode',
         default: null
     },
-        phoneNumber: {
-      type: Number,
-      minlength: [10, 'Phone number must be at least 10 digits'],
-      trim: true,
-      default: null
+    phoneNumber: {
+        type: String,
+        trim: true,
+        minlength: [7, 'Phone number must be at least 7 characters'],
+        maxlength: [20, 'Phone number cannot exceed 20 characters'],
+        default: null
     },
     alternateNumber: {
-      type: Number,
-      minlength: [10, 'Alternate number must be at least 10 digits'],
-      trim: true,
-      default: null
+        type: String,
+        trim: true,
+        minlength: [7, 'Alternate number must be at least 7 characters'],
+        maxlength: [20, 'Alternate number cannot exceed 20 characters'],
+        default: null
     },
     products: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
     }],
     KYCdocs: {
         type: String,
-        required: [true, 'KYC documents are required'],
+        default: null
     },
     vendorStatus: {
-      type: String,
-      enum: ['Active', 'Inactive', 'Blacklisted'],
-      default: 'Pending'
+        type: String,
+        enum: ['Active', 'Inactive', 'Blacklisted'],
+        default: 'Pending'
     }
-}, {timestamps: true});
+}, { timestamps: true });
 
 const Vendor = mongoose.model('Vendor', vendorSchema);
 module.exports = Vendor;

@@ -1,2 +1,10 @@
 --first create roles 
---for roles update create seperate controllers beacuse on roll change many things will change  
+--for roles update create seperate controllers beacuse on roll change many things will change 
+
+-todo
+1 customer profile ,
+2 cloudinary ,
+3 create mongodb transaction 
+4. Phone numbers are stored as numbers 
+5 add customer and address routes 
+6. Customer city/state sorting sorts IDs, not displayed names

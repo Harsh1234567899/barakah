@@ -5,13 +5,13 @@ const { asyncHandler } = require('devil-backend-nodejs');
 const ApiError = require('../../utils/ApiError');
 const ApiResponse = require('../../utils/ApiResponse');
 const { generateAccessToken, generateRefreshToken, setTokenCookies } = require('../../utils/generateToken');
-const {  checkOwnerOrAdmin, generateCustomerCode } = require('../../utils/otherUtils');
+const { checkOwnerOrAdmin, generateCustomerCode } = require('../../utils/otherUtils');
 const constants = require('../../config/constants');
 const mongoose = require('mongoose');
 
 
 exports.register = asyncHandler(async (req, res) => {
-  const { userName, email, password, confirmPassword } = req.body;
+  const { userName, email, password, confirmPassword ,role } = req.body;
 
   if (password !== confirmPassword) {
     throw new ApiError(400, 'Passwords do not match');
@@ -212,7 +212,7 @@ exports.updateUser = asyncHandler(async (req, res) => {
     const targetUserId = req.params.id;
     const loggedInUser = req.user;
 
-    const { targetId } = checkOwnerOrAdmin(targetUserId, loggedInUser)
+    const { targetId } = checkOwnerOrAdmin(targetUserId, loggedInUser);
 
     const updates = { ...req.body };
     delete updates.password;
@@ -253,47 +253,5 @@ exports.updateUser = asyncHandler(async (req, res) => {
   }
 });
 
-// admin only can add user
-exports.addUser = asyncHandler(async (req, res) => {
 
-  const { userName, email, password, role, joiningDate } = req.body;
-
-  if (role) {
-    if (!mongoose.isValidObjectId(role)) {
-      throw new ApiError(400,"invalid role id")
-    }
-  }
-
-  if (!userName || !email || !password) {
-    throw new ApiError(400, 'Missing required fields');
-  }
-
-  try {
-    const user = await User.create({
-      userName,
-      email,
-      password,
-      joiningDate: joiningDate || new Date().toLocaleDateString('en-GB'),
-      role: role ? role : ''
-    });
-
-    res.status(constants.STATUS.CREATED).json(
-      new ApiResponse(constants.STATUS.CREATED, {
-        message: 'User added successfully',
-        user: {
-          _id: user._id,
-          joiningDate: user.joiningDate,
-          userName: user.userName,
-          email: user.email,
-          isVerified: user.isVerified,
-        },
-      })
-    );
-  } catch (error) {
-    if (error.code === 11000) {
-      throw new ApiError(409, 'Email already registered');
-    }
-    throw error;
-  }
-});
 

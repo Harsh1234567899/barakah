@@ -1,6 +1,7 @@
 const constants = require('../config/constants');
 const ApiError = require('../utils/ApiError');
 const mongoose = require('mongoose');
+const { roleCache, ROLES_ACCESS_CACHE_KEY } = require('../config/cache');
 
 const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const numbers = '0123456789';
@@ -76,17 +77,25 @@ const generateProductSKU = () => {
     return productSKU;
 }
 
-const checkOwnerOrAdmin = (targetId, reqestUserId) => {
-    const isOwner = String(reqestUserId.id) === String(targetId);
-    const isAdminOrSuperAdmin = [constants.ROLES.ADMIN, constants.ROLES.SUPER_ADMIN].includes(reqestUserId.role);
-
+const checkOwnerOrAdmin = (targetId, requestUser) => {
     if (!mongoose.isValidObjectId(targetId)) {
         throw new ApiError(400, 'Invalid user ID');
     }
-    if (!isOwner && !isAdminOrSuperAdmin) {
-        throw new ApiError(403, 'You are not authorized to perfrom this this task');
+
+    if (!requestUser) {
+        throw new ApiError(401, 'Authentication required');
     }
-    return { targetId };
+
+    const isOwner = String(requestUser.id || requestUser._id) === String(targetId);
+    const permissionMatrix = roleCache.get(ROLES_ACCESS_CACHE_KEY) || {};
+    const isAdminOrSuperAdmin = [constants.ROLES.ADMIN, constants.ROLES.SUPER_ADMIN]
+        .some((roleName) => requestUser.role === roleName && Object.hasOwn(permissionMatrix, roleName));
+
+    if (!isOwner && !isAdminOrSuperAdmin) {
+        throw new ApiError(403, 'You are not authorized to perform this task');
+    }
+
+    return { targetId, isOwner, isAdminOrSuperAdmin };
 }
 
 module.exports = {
