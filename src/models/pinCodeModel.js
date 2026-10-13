@@ -4,6 +4,7 @@ const pinCodeSchema = new mongoose.Schema({
     pincode: {
         type: Number,
         required: true,
+        maxlength: [6, 'Pincode cannot exceed 6 Numbers'],
         unique: true
     },
     city: {

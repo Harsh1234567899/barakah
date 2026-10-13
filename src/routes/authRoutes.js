@@ -12,8 +12,8 @@ const {
   changePassword,
   updateUser,
 } = require('../controllers/UserFlowControllers/authController.js');
-const {upload} = require('../middleware/multerMiddleware.js');
 const { protect } = require('../middleware/authMiddleware.js');
+const { checkAccess } = require('../middleware/rbacMiddleware.js');
 
 
 router.post('/register', register);
@@ -29,7 +29,7 @@ router.put('/change-password', protect, changePassword);
 router.patch(
   '/update-profile/:id',
   protect,
-  upload.fields([{ name: 'avatar', maxCount: 1 }]),
+  checkAccess('user', 'edit'),
   updateUser
 );
 

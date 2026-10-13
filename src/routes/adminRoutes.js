@@ -6,6 +6,7 @@ const {
   addRolePermissions,
   updateRolePermissions,
   adminUserRegister,
+  getRolesWithPermission
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -17,6 +18,13 @@ router.get(
   getRoles
 );
 
+router.get(
+  '/get-roles-permission',
+  protect,
+  authorize('admin','super_admin'),
+  getRolesWithPermission
+)
+
 router.post(
   '/roles',
   protect,
@@ -25,7 +33,7 @@ router.post(
 );
 
 router.post(
-  '/users',
+  '/create-user',
   protect,
   authorize('admin', 'super_admin'),
   adminUserRegister
@@ -35,7 +43,7 @@ router.post(
 router.patch(
   '/roles/:roleId/access',
   protect,
-  checkAccess('roles', 'edit'),
+  authorize('admin','super_admin'),
   updateRolePermissions
 );
 

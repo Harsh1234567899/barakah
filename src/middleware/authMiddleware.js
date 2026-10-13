@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { asyncHandler } = require('devil-backend-nodejs');
 const ApiError = require('../utils/ApiError');
+const { isValidObjectId } = require('mongoose');
 
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
@@ -19,7 +20,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (!decoded._id || !decoded.role) {
+    if (!decoded._id || !decoded.role || !isValidObjectId(decoded._id)) {
       throw new ApiError(401, 'Access token is missing required claims');
     }
 
@@ -27,7 +28,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
       _id: decoded._id,
       id: decoded._id,
       userName: decoded.userName,
-      employeeCode: decoded.employeeCode,
       email: decoded.email,
       role: decoded.role,
     };

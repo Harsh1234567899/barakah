@@ -56,13 +56,13 @@ const vendorSchema = new mongoose.Schema({
         maxlength: [20, 'Phone number cannot exceed 20 characters'],
         default: null
     },
-    alternateNumber: {
-        type: String,
-        trim: true,
-        minlength: [7, 'Alternate number must be at least 7 characters'],
-        maxlength: [20, 'Alternate number cannot exceed 20 characters'],
-        default: null
-    },
+    // alternateNumber: {
+    //     type: String,
+    //     trim: true,
+    //     minlength: [7, 'Alternate number must be at least 7 characters'],
+    //     maxlength: [20, 'Alternate number cannot exceed 20 characters'],
+    //     default: null
+    // },
     products: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
@@ -73,7 +73,7 @@ const vendorSchema = new mongoose.Schema({
     },
     vendorStatus: {
         type: String,
-        enum: ['Active', 'Inactive', 'Blacklisted'],
+        enum: ['Pending', 'Active', 'Inactive', 'Blacklisted'],
         default: 'Pending'
     }
 }, { timestamps: true });

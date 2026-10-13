@@ -4,6 +4,7 @@ const pinCodeModel = require('../models/pinCodeModel');
 const ApiError = require('../utils/ApiError');
 const { asyncHandler } = require('devil-backend-nodejs');
 const ApiResponse = require('../utils/ApiResponse');
+const { isValidObjectId } = require('mongoose');
 
 
 exports.createState = asyncHandler(async (req, res) => {
@@ -24,8 +25,8 @@ exports.createCity = asyncHandler(async (req, res) => {
   if (!city || typeof city !== 'string' || !city.trim()) {
     throw new ApiError(400, 'City is required and must be a non-empty string');
   }
-  if (!state || typeof state !== 'string' || !state.trim()) {
-    throw new ApiError(400, 'State is required and must be a non-empty string');
+  if (!state || typeof state !== 'string' || !isValidObjectId(state)) {
+    throw new ApiError(400, 'State is required and must be a non-empty string and valid id');
   }
   const createdCity = await cityModel.create({ city: city.trim(), state: state.trim() });
   if (!createdCity) {
@@ -39,10 +40,10 @@ exports.createPinCode = asyncHandler(async (req, res) => {
   if (!pincode || typeof pincode !== 'string' || !pincode.trim()) {
     throw new ApiError(400, 'PinCode is required and must be a non-empty string');
   }
-  if (!city || typeof city !== 'string' || !city.trim()) {
+  if (!city || typeof city !== 'string' || !city.trim() || !isValidObjectId(city)) {
     throw new ApiError(400, 'City is required and must be a non-empty string');
   }
-  if (!state || typeof state !== 'string' || !state.trim()) {
+  if (!state || typeof state !== 'string' || !state.trim() || !isValidObjectId(state)) {
     throw new ApiError(400, 'State is required and must be a non-empty string');
   }
   const createdPinCode = await pinCodeModel.create({ pincode: pincode.trim(), city: city.trim(), state: state.trim() });

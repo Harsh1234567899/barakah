@@ -11,7 +11,7 @@ const mongoose = require('mongoose');
 
 
 exports.register = asyncHandler(async (req, res) => {
-  const { userName, email, password, confirmPassword ,role } = req.body;
+  const { userName, email, password, confirmPassword  } = req.body;
 
   if (password !== confirmPassword) {
     throw new ApiError(400, 'Passwords do not match');
@@ -206,7 +206,7 @@ exports.changePassword = asyncHandler(async (req, res) => {
   );
 });
 
-
+// only for email ,username ,joining date , etc for user model
 exports.updateUser = asyncHandler(async (req, res) => {
   try {
     const targetUserId = req.params.id;
@@ -217,6 +217,9 @@ exports.updateUser = asyncHandler(async (req, res) => {
     const updates = { ...req.body };
     delete updates.password;
     delete updates.role;
+    delete updates.passwordResetToken
+    delete updates.passwordResetExpires
+    delete updates.refreshToken
 
     for (const key in updates) {
       if (updates[key] === undefined || updates[key] === '') {

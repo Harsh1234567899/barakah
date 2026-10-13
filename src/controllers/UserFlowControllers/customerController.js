@@ -133,8 +133,8 @@ exports.getCustomerById = asyncHandler(async (req, res) => {
         { path: 'user', populate: { path: 'role', select: 'name' }, },
         { path: 'state', select: 'state', },
         { path: 'city', select: 'city' },
-        { path: 'pincode', select: 'pincode' },
-        { path: 'orders' }
+        { path: 'pincode', select: 'pincode' }
+        // { path: 'orders' }
     ]);
     if (!customer) {
         throw new ApiError(404, 'Customer not found');
@@ -188,21 +188,24 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
     try {
         await session.withTransaction(async () => {
 
-            updatedUser = Object.keys(userUpdates).length
-                ? await User.findByIdAndUpdate(
+            if (Object.keys(userUpdates).length > 0) {
+                updatedUser = await User.findByIdAndUpdate(
                     targetId,
                     { $set: userUpdates },
                     { new: true, runValidators: true, session }
-                )
-                : null
+                );
 
-            updatedCustomer = Object.keys(customerUpdates).length
-                ? await Customer.findOneAndUpdate(
+                if (!updatedUser) throw new ApiError(404, 'User not found');
+            }
+            if (Object.keys(customerUpdates).length > 0) {
+                updatedCustomer = await Customer.findOneAndUpdate(
                     { user: targetId },
                     { $set: customerUpdates },
                     { new: true, runValidators: true, session }
-                )
-                : null;
+                );
+
+                if (!updatedCustomer) throw new ApiError(404, 'Customer profile not found');
+            }
         });
     } catch (error) {
         if (uploadedAvatarUrl) {
@@ -243,7 +246,7 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
             if (!customer) throw new ApiError(404, 'Customer not found');
             avatarUrl = customer.avatar;
 
-            const customerDeletion = await Customer.deleteMany({ user: targetId }, { session });
+            const customerDeletion = await Customer.findOneAndDelete({ user: targetId }, { session });
             if (customerDeletion.deletedCount === 0) {
                 throw new ApiError(404, 'Customer not found');
             }
@@ -263,7 +266,7 @@ exports.deleteCustomer = asyncHandler(async (req, res) => {
             await deleteOnCloudinary(avatarUrl);
         } catch (error) {
             avatarCleanupFailed = true;
-            console.warn('Customer was deleted, but Cloudinary avatar cleanup failed.');
+            throw new ApiError(400, 'Customer was deleted, but Cloudinary avatar cleanup failed.')
         }
     }
 

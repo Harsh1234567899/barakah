@@ -87,15 +87,38 @@ exports.addRolePermissions = asyncHandler(async (req, res) => {
 });
 
 exports.updateRolePermissions = asyncHandler(async (req, res) => {
-  const { permissions } = req.body;
+  const permissions = req.body?.permissions ?? req.body;
 
   if (!permissions || typeof permissions !== 'object' || Array.isArray(permissions)) {
     throw new ApiError(400, 'Permissions must be an object');
   }
 
+  if (!mongoose.isValidObjectId(req.params.roleId)) {
+    throw new ApiError(400, 'Invalid role ID');
+  }
+
+  const permissionUpdates = {};
+  for (const [screen, actions] of Object.entries(permissions)) {
+    if (!screen || screen.includes('.') || screen.startsWith('$') ||
+        !actions || typeof actions !== 'object' || Array.isArray(actions)) {
+      throw new ApiError(400, 'Each screen must contain an object of action permissions');
+    }
+
+    for (const [action, isAllowed] of Object.entries(actions)) {
+      if (!action || action.includes('.') || action.startsWith('$') || typeof isAllowed !== 'boolean') {
+        throw new ApiError(400, 'Permission actions must have valid names and boolean values');
+      }
+      permissionUpdates[`permissions.${screen}.${action}`] = isAllowed;
+    }
+  }
+
+  if (Object.keys(permissionUpdates).length === 0) {
+    throw new ApiError(400, 'At least one screen action permission is required to update');
+  }
+
   const roleAccess = await RoleAccess.findOneAndUpdate(
     { role: req.params.roleId },
-    { $set: { permissions } },
+    { $set: permissionUpdates },
     { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
   );
 
@@ -120,7 +143,7 @@ exports.adminUserRegister = asyncHandler(async (req, res) => {
   if (!role || !mongoose.isValidObjectId(role)) {
     throw new ApiError(400, 'A valid role ObjectId is required');
   }
-
+  
   const session = await mongoose.startSession();
   let registeredUser;
   let registeredProfile = null;
@@ -132,7 +155,6 @@ exports.adminUserRegister = asyncHandler(async (req, res) => {
       if (!selectedRole) {
         throw new ApiError(400, 'Selected role was not found');
       }
-      
 
       const [user] = await User.create([{
         userName,
@@ -191,13 +213,13 @@ exports.adminUserRegister = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'Email already registered');
       }
       if (error.keyPattern?.customerCode) {
-        throw new ApiError(409, 'Could not create a unique customer code; please retry');
+        throw new ApiError(409, 'Could not create a unique customer code please retry');
       }
       if (error.keyPattern?.vendorCode) {
-        throw new ApiError(409, 'Could not create a unique vendor code; please retry');
+        throw new ApiError(409, 'Could not create a unique vendor code please retry');
       }
       if (error.keyPattern?.employeeCode) {
-        throw new ApiError(409, 'Could not create a unique employee code; please retry');
+        throw new ApiError(409, 'Could not create a unique employee code please retry');
       }
     }
     throw error;
