@@ -1,13 +1,13 @@
 const express = require('express');
-const { protect ,authorize } = require('../middleware/authMiddleware');
-const { checkAccess } = require('../middleware/rbacMiddleware');
+const { protect ,authorize } = require('../../middleware/authMiddleware');
+const { checkAccess } = require('../../middleware/rbacMiddleware');
 const {
   getRoles,
   addRolePermissions,
   updateRolePermissions,
   adminUserRegister,
   getRolesWithPermission
-} = require('../controllers/adminController');
+} = require('../../controllers/adminController');
 
 const router = express.Router();
 

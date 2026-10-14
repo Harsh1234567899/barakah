@@ -11,9 +11,9 @@ const {
   resetPassword,
   changePassword,
   updateUser,
-} = require('../controllers/UserFlowControllers/authController.js');
-const { protect } = require('../middleware/authMiddleware.js');
-const { checkAccess } = require('../middleware/rbacMiddleware.js');
+} = require('../../controllers/UserFlowControllers/authController.js');
+const { protect } = require('../../middleware/authMiddleware.js');
+const { checkAccess } = require('../../middleware/rbacMiddleware.js');
 
 
 router.post('/register', register);

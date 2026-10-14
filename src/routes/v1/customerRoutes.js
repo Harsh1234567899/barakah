@@ -1,13 +1,13 @@
 const express = require('express');
-const { protect } = require('../middleware/authMiddleware');
-const { checkAccess } = require('../middleware/rbacMiddleware');
-const { upload } = require('../middleware/multerMiddleware');
+const { protect } = require('../../middleware/authMiddleware');
+const { checkAccess } = require('../../middleware/rbacMiddleware');
+const { upload } = require('../../middleware/multerMiddleware');
 const {
   getCustomers,
   getCustomerById,
   updateCustomer,
   deleteCustomer,
-} = require('../controllers/UserFlowControllers/customerController');
+} = require('../../controllers/UserFlowControllers/customerController');
 
 const router = express.Router();
 

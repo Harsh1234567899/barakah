@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const authRoutes = require('./authRoutes');
-const adminRoutes = require('./adminRoutes');
-const customerRoutes = require('./customerRoutes');
-const addressRoutes = require('./addressRoutes');
-const vendorRoutes = require('./vendorRoutes.js');
+const authRoutes = require('./v1/authRoutes.js');
+const adminRoutes = require('./v1/adminRoutes.js');
+const customerRoutes = require('./v1/customerRoutes.js');
+const addressRoutes = require('./v1/addressRoutes.js');
+const vendorRoutes = require('./v1/vendorRoutes.js');
 
 
 router.use('/auth', authRoutes);

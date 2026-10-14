@@ -1,5 +1,5 @@
 const express = require('express');
-const { authorize, protect } = require('../middleware/authMiddleware');
+const { authorize, protect } = require('../../middleware/authMiddleware');
 const {
   createState,
   createCity,
@@ -7,7 +7,7 @@ const {
   getStates,
   getCities,
   getPinCodes,
-} = require('../controllers/addressController');
+} = require('../../controllers/addressController');
 
 const router = express.Router();
 const adminOnly = [protect, authorize('admin', 'super_admin')];
